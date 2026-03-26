@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+:root {
+  --forest: #1a3a2a;
+  --deep: #0f2219;
+  --mid: #2d6645;
+  --leaf: #3d8b5a;
+  --sage: #6aaa7d;
+  --mint: #a8d5b5;
+  --pale: #e8f5ed;
+  --white: #ffffff;
+  --offwhite: #f7fbf8;
+  --muted: #4a6157;
+  --ltxt: #6b8378;
+  --border: rgba(61, 139, 90, 0.18);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--white);
+  color: var(--forest);
+  overflow-x: hidden;
+  width: 100%;
+}
