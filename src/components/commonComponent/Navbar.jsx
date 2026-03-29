@@ -101,7 +101,6 @@ const TECH_FEATURED = {
 
 /* ── Link Helper Component ───────────────────────── */
 const NavLink = ({ href, className, children, onClick }) => {
-  // Use Link for internal routes, <a> for anchors
   if (href.startsWith("/")) {
     return (
       <Link to={href} className={className} onClick={onClick}>
@@ -126,17 +125,32 @@ const Chevron = ({ open, cls = "" }) => (
 /* ── Desktop Mega Dropdown ──────────────────────── */
 const MegaDropdown = () => {
   const [open, setOpen] = useState(false);
-  const t = useRef(null);
-  const show = () => { clearTimeout(t.current); setOpen(true); };
-  const hide = () => { t.current = setTimeout(() => setOpen(false), 140); };
+  const dropdownRef = useRef(null);
+
+  // Close when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <li className="relative flex items-center h-full" onMouseEnter={show} onMouseLeave={hide}>
-      <button className="flex items-center gap-1.5 text-[0.95rem] font-medium text-[#1a3a2a] bg-transparent border-none cursor-pointer transition-colors duration-250 hover:text-[#2d6645]">
+    // Removed "relative" from this li so the dropdown centers on the viewport/nav, not the item
+    <li className="flex items-center h-full" ref={dropdownRef}>
+      <button 
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1.5 text-[0.95rem] font-medium text-[#1a3a2a] bg-transparent border-none cursor-pointer transition-colors duration-250 hover:text-[#2d6645]"
+      >
         Technology & Process <Chevron open={open} />
       </button>
+      
       {open && (
-        <div className="absolute top-[calc(100%-10px)] left-1/2 -translate-x-1/2 w-[94vw] max-w-[1100px] bg-white border border-[rgba(26,58,42,0.08)] shadow-[0_20px_40px_rgba(26,58,42,0.12)] rounded-[12px] p-10 flex gap-10 animate-fade-in z-[1000] mt-4">
+        // Adjusted top positioning to sit just under the nav (which is 76px tall)
+        <div className="absolute top-[76px] left-1/2 -translate-x-1/2 w-[94vw] max-w-[1100px] bg-white border border-[rgba(26,58,42,0.08)] shadow-[0_20px_40px_rgba(26,58,42,0.12)] rounded-[12px] p-10 flex gap-10 animate-fade-in z-[1000] mt-2">
           <div className="flex-[3] grid grid-cols-2 gap-x-10 gap-y-12">
             {TECH_MEGA.map((col) => (
               <div key={col.heading}>
@@ -146,7 +160,7 @@ const MegaDropdown = () => {
                 <ul className="flex flex-col gap-5 list-none p-0">
                   {col.links.map((link) => (
                     <li key={link.label}>
-                      <NavLink href={link.href} className="flex flex-col gap-1 no-underline group hover:translate-x-1 transition-transform duration-300">
+                      <NavLink href={link.href} onClick={() => setOpen(false)} className="flex flex-col gap-1 no-underline group hover:translate-x-1 transition-transform duration-300">
                         <span className="text-[0.92rem] font-semibold text-[#1a3a2a] transition-colors duration-250 group-hover:text-[#3d8b5a]">{link.label}</span>
                         <span className="text-[0.78rem] text-[#6b8378] leading-normal">{link.desc}</span>
                       </NavLink>
@@ -171,7 +185,7 @@ const MegaDropdown = () => {
                 <span className="text-[0.65rem] uppercase font-bold tracking-widest opacity-60 text-white">{TECH_FEATURED.stat2.lbl}</span>
               </div>
             </div>
-            <NavLink href={TECH_FEATURED.cta.href} className="text-[#a8d5b5] text-[0.88rem] font-bold no-underline hover:text-white transition-colors duration-250 border-b border-[#a8d5b5] pb-0.5 mt-auto">{TECH_FEATURED.cta.label}</NavLink>
+            <NavLink href={TECH_FEATURED.cta.href} onClick={() => setOpen(false)} className="text-[#a8d5b5] text-[0.88rem] font-bold no-underline hover:text-white transition-colors duration-250 border-b border-[#a8d5b5] pb-0.5 mt-auto">{TECH_FEATURED.cta.label}</NavLink>
           </div>
         </div>
       )}
@@ -182,21 +196,34 @@ const MegaDropdown = () => {
 /* ── Desktop Regular Dropdown ───────────────────── */
 const DropdownItem = ({ nav }) => {
   const [open, setOpen] = useState(false);
-  const t = useRef(null);
-  const show = () => { clearTimeout(t.current); setOpen(true); };
-  const hide = () => { t.current = setTimeout(() => setOpen(false), 120); };
+  const dropdownRef = useRef(null);
+
+  // Close when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <li className="relative flex items-center h-full" onMouseEnter={show} onMouseLeave={hide}>
-      <button className="flex items-center gap-1.5 text-[0.95rem] font-medium text-[#1a3a2a] bg-transparent border-none cursor-pointer transition-colors duration-250 hover:text-[#2d6645]">
+    <li className="relative flex items-center h-full" ref={dropdownRef}>
+      <button 
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1.5 text-[0.95rem] font-medium text-[#1a3a2a] bg-transparent border-none cursor-pointer transition-colors duration-250 hover:text-[#2d6645]"
+      >
         {nav.label} <Chevron open={open} />
       </button>
+      
       {open && (
         <div className="absolute top-[calc(100%-8px)] left-0 min-w-[220px] bg-white border border-[rgba(26,58,42,0.08)] shadow-[0_15px_30px_rgba(26,58,42,0.1)] rounded-[8px] p-4 animate-fade-in z-[1000] mt-4">
           <ul className="flex flex-col gap-1 list-none p-0 m-0">
             {nav.items.map((item) => (
               <li key={item.label}>
-                <NavLink href={item.href} className="flex items-center gap-3 px-3 py-2.5 text-[0.88rem] font-medium text-[#4a6157] no-underline rounded-[4px] transition-all duration-200 hover:bg-[#f0f7f3] hover:text-[#3d8b5a] group whitespace-nowrap">
+                <NavLink href={item.href} onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2.5 text-[0.88rem] font-medium text-[#4a6157] no-underline rounded-[4px] transition-all duration-200 hover:bg-[#f0f7f3] hover:text-[#3d8b5a] group whitespace-nowrap">
                   <span className="w-1.5 h-1.5 bg-[#3d8b5a] rounded-full opacity-0 -translate-x-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0" />
                   {item.label}
                 </NavLink>
@@ -256,6 +283,7 @@ const HamburgerIcon = ({ open }) => (
 );
 
 /* ── Navbar ─────────────────────────────────────── */
+/* ── Navbar ─────────────────────────────────────── */
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -270,14 +298,14 @@ const Navbar = () => {
     <>
       <nav className="fixed top-0 left-0 w-full h-[76px] bg-[#a8d5b5] flex items-center justify-between px-[5%] z-[1000] shadow-sm">
         
-        {/* ── Logo container (Takes up equal space on the left) ── */}
+        {/* ── Logo container ── */}
         <div className="flex-1 flex items-center justify-start shrink-0">
           <Link to="/">
             <img src={logo} alt="logo" className="h-[44px] w-auto max-[640px]:h-9 cursor-pointer hover:opacity-80 transition-opacity" />
           </Link>
         </div>
 
-        {/* ── Desktop links (Centered) ── */}
+        {/* ── Desktop links ── */}
         <ul className="hidden min-[1024px]:flex items-center justify-center gap-9 list-none p-0 m-0 h-full flex-none">
           <DropdownItem nav={ALL_NAV[0]} />
           <MegaDropdown />
@@ -286,10 +314,8 @@ const Navbar = () => {
           ))}
         </ul>
 
-        {/* ── Desktop CTA (Takes up equal space on the right) ── */}
+        {/* ── Desktop CTA ── */}
         <div className="flex-1 flex items-center justify-end">
-          
-          {/* UPDATED BUTTON HERE */}
           <NavLink 
             href="#contact" 
             className="hidden min-[1024px]:flex items-center justify-center bg-[#438e64] text-white px-8 py-3 rounded-full font-semibold text-[0.95rem] no-underline transition-colors duration-250 hover:bg-[#367552]"
@@ -297,7 +323,7 @@ const Navbar = () => {
             Talk to an Expert
           </NavLink>
 
-          {/* ── Hamburger (mobile only) ── */}
+          {/* ── Hamburger ── */}
           <button
             className={`min-[1024px]:hidden flex items-center justify-center w-11 h-11 bg-[rgba(255,255,255,0.3)] border-none rounded-full text-[#1a3a2a] cursor-pointer transition-all duration-300 group ${mobileOpen ? "text-[#3d8b5a] bg-white rotate-90" : ""}`}
             onClick={() => setMobileOpen((o) => !o)}
@@ -308,11 +334,18 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* ── Mobile backdrop ── */}
-      {mobileOpen && <div className="fixed inset-0 bg-[rgba(26,58,42,0.4)] backdrop-blur-[4px] z-[1200] animate-fade-in" onClick={close} />}
+      {/* ── Mobile backdrop (Conditionally rendered, hidden on desktop) ── */}
+      {mobileOpen && (
+        <div 
+          className="min-[1024px]:hidden fixed inset-0 bg-[rgba(26,58,42,0.4)] backdrop-blur-[4px] z-[1200] animate-fade-in" 
+          onClick={close} 
+        />
+      )}
 
-      {/* ── Mobile drawer ── */}
-      <div className={`fixed top-0 right-0 w-[85%] max-w-[380px] h-full bg-white z-[1300] shadow-[-10px_0_40px_rgba(26,58,42,0.15)] flex flex-col transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${mobileOpen ? "translate-x-0" : "translate-x-full"}`}>
+      {/* ── Mobile drawer (Always in DOM for animation, hidden on desktop) ── */}
+      <div 
+        className={`min-[1024px]:hidden fixed top-0 right-0 w-[85%] max-w-[380px] h-full bg-white z-[1300] shadow-[-10px_0_40px_rgba(26,58,42,0.15)] flex flex-col transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${mobileOpen ? "translate-x-0" : "translate-x-full"}`}
+      >
         <div className="flex items-center justify-between p-7 border-b border-[rgba(0,0,0,0.05)]">
           <div className="h-9 shrink-0"><img src={logo} alt="logo" className="h-full w-auto" /></div>
           <button className="flex items-center justify-center w-10 h-10 bg-[#f7fbf8] border-none rounded-full text-[#4a6157] cursor-pointer hover:bg-[#e8f5ed] hover:text-[#3d8b5a] transition-all" onClick={close} aria-label="Close menu">
@@ -330,7 +363,6 @@ const Navbar = () => {
         </div>
 
         <div className="p-7 border-t border-[rgba(0,0,0,0.05)]">
-          {/* UPDATED MOBILE BUTTON TO MATCH STYLE */}
           <NavLink href="#contact" className="flex items-center justify-center w-full py-3.5 bg-[#438e64] text-white rounded-full font-semibold text-[1.05rem] no-underline hover:bg-[#367552] transition-colors" onClick={close}>Talk to an Expert</NavLink>
         </div>
       </div>
